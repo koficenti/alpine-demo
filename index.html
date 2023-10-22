@@ -75,6 +75,7 @@
         const restart = (data, fully = true) => {
             data.gameover = false
             playing = false
+            data.playing = false
             data.words = generateWords(500)
             if(fully){
                 data.last_count = calculateWPM(data.count - data.wrong, data.starttime)
@@ -86,14 +87,15 @@
             document.getElementById("typer").style.top = ""
             document.getElementById("typer").style.left = 0
             document.getElementById("typer").style.color = ""
-            document.querySelectorAll("#word").forEach(e => {e.style.color = ""})
+            document.querySelectorAll("#word").forEach(e => {e.style.color = ""; e.style.animation = ""})
             stopTimer();
         }
 
         const handleChange = (self, data) =>{
             if(!playing && !data.gameover){
                 startTimer(data)
-                playing = true 
+                playing = true
+                data.playing = true
             }
             let word = document.querySelectorAll("#word")[data.count+1]
             let last_word = document.querySelectorAll("#word")[data.count]
@@ -133,7 +135,7 @@
         }
 
     </script>
-    <div x-data="{gameover: false, starttime: 60, time: 60, words: generateWords(500), best_count: $persist(0), last_count: $persist(0),  count: 0, wrong: 0, typed_input: '', total_words_day: $persist(0)}">
+    <div x-data="{playing: playing, gameover: false, starttime: 60, time: 60, words: generateWords(500), best_count: $persist(0), last_count: $persist(0),  count: 0, wrong: 0, typed_input: '', total_words_day: $persist(0)}">
         <div class="px-10 md:px-36"
         x-show="!gameover"
         x-cloak>
@@ -168,7 +170,7 @@
         </div>
 
         <div class="flex place-items-center justify-between md:px-56 py-20">
-            <a class="text-[#60607C] font-bold opacity-50">Time: <input  class="w-[50px] outline-none text-center rounded-sm" type="text" x-model="time" x-bind:value="time"/> seconds</a>
+            <a class="text-[#60607C] font-bold opacity-50">Time: <input x-bind:disabled="playing"  class="w-[50px] outline-none text-center rounded-sm" type="text" x-model="time" x-bind:value="time"/> seconds</a>
             <div x-show="false" x-init="$watch('time', () => { !playing ? starttime = time : null  })"></div>
             <div x-on:click="restart($data, false)" id="reload" class="hover:stroke-black stroke-[#60607C] cursor-pointer opacity-75 transition-colors duration-200">
                 <div x-html="loadSVG('./svgs/reload.svg')"></div>
