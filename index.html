@@ -22,13 +22,20 @@
             display: none;
 
         }
+        @keyframes wrong {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-5px, 0); scale: 0.2 }
+            50% { transform: translate(5px, 0); }
+            75% { transform: translate(-5px, 0); scale: 1 }
+            100% { transform: translate(5px, 0); }
+        }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="text-xl bg-[#CCCCFF]">
     <script>
         const batch = ["the", "and", "you", "to", "a", "it", "I", "of", "in", "that", "is", "he", "she", "for", "we", "was", "on", "are", "with", "as", "they", "at", "be", "this", "but", "not", "have", "from", "by", "or", "one", "had", "all", "an", "if", "out", "can", "your", "when", "will", "more", "up", "what", "time", "so", "about", "which", "their", "there", "then", "some", "into", "her", "would", "could", "no", "my", "like", "man", "only", "other", "than", "how", "been", "our", "do", "get", "just", "made", "him", "down", "over", "way", "find", "use", "may", "first", "water", "long", "people", "very", "after", "work", "great", "three", "see", "know", "come", "world", "through", "back", "still", "own", "those", "should", "well", "new", "because", "any", "way", "old", "year", "here", "think", "said", "yourself", "need", "many", "right", "too", "feel", "try", "some", "life", "leave", "put", "long", "call", "differ", "found", "same", "tell", "show", "around", "point", "name", "set", "group", "problem", "turn", "hand", "part", "place", "case", "week", "company", "system", "program", "question", "work", "government", "number", "night", "country", "fact", "study", "plant", "food", "sun", "four", "between", "state", "eye", "never", "last", "let", "thought", "city", "tree", "cross", "farm", "hard", "start", "might", "story", "saw", "far", "sea", "draw", "left", "late", "run", "don't", "while", "press", "close", "night", "real", "life", "few", "north", "open", "seem", "together", "next", "white", "children", "begin", "got", "walk", "example", "ease", "paper", "often", "always", "music", "those", "both", "mark", "book", "letter", "until", "mile", "river", "car", "feet", "care", "second", "group", "carry", "took", "food", "city", "eat", "room", "friend", "began", "idea", "fish", "mountain", "stop", "once", "base", "hear", "horse", "cut", "sure", "watch", "color", "face", "wood", "main", "enough", "plain", "girl", "usual", "young", "ready", "above", "ever", "red", "list", "though", "feel", "talk", "bird", "soon", "body", "dog", "family", "direct", "pose", "leave", "song", "measure", "state", "product", "black", "short", "numeral", "class", "wind", "question", "happen", "complete", "ship", "area", "half", "rock", "order", "fire", "south", "problem", "piece", "told", "knew", "pass", "since", "top", "whole", "king", "space", "heard", "best", "hour", "better", "true", "during", "hundred", "five", "remember", "step", "early", "hold", "west", "ground", "interest", "reach", "fast", "verb", "sing", "listen", "six", "table", "travel", "less", "morning", "ten", "simple", "several", "vowel", "toward", "war", "lay", "against", "pattern", "slow", "center", "love", "person", "money", "serve", "appear", "road", "map", "rain", "rule", "govern", "pull", "cold", "notice", "voice", "unit", "power", "town", "fine", "certain", "fly", "fall", "lead", "cry", "dark", "machine", "note", "wait", "plan", "figure", "star", "box", "noun", "field", "rest", "correct", "able", "pound", "done", "beauty", "drive", "stood", "contain", "front", "teach", "week", "final", "gave", "green", "quick", "develop", "ocean", "warm", "free", "minute"];
-        const wrongColor = "darkred"
+        const wrongColor = "red"
 
         const generateWords = (amount) => {
             let text = []
@@ -65,12 +72,14 @@
             clearInterval(timerInterval);
         }
 
-        const restart = (data) => {
+        const restart = (data, fully = true) => {
             data.gameover = false
             playing = false
             data.words = generateWords(500)
-            data.last_count = calculateWPM(data.count - data.wrong, data.starttime)
-            data.best_count = Math.max(data.best_count, data.last_count)
+            if(fully){
+                data.last_count = calculateWPM(data.count - data.wrong, data.starttime)
+                data.best_count = Math.max(data.best_count, data.last_count)
+            }
             data.count = 0
             data.time = data.starttime
             document.getElementById("typer").value = ""
@@ -88,8 +97,12 @@
             }
             let word = document.querySelectorAll("#word")[data.count+1]
             let last_word = document.querySelectorAll("#word")[data.count]
+
             if(data.typed_input != "" && data.typed_input.endsWith(" ")){
-                if (data.typed_input.slice(0, -1) === data.words[data.count]){
+                while(data.typed_input.startsWith(" ")){
+                    data.typed_input = data.typed_input.slice(0,-1)
+                }
+                if (!data.typed_input.startsWith(" ") && data.typed_input.slice(0, -1) === data.words[data.count]){
                     self.style.top = word.offsetTop + "px"
                     self.style.left = word.offsetLeft + "px"
                     self.value = ""
@@ -102,13 +115,14 @@
                     self.style.left = word.offsetLeft + "px"
                     self.value = ""
                     last_word.style.color = wrongColor
+                    last_word.style.animation = "wrong 0.4s"
                     data.wrong += 1
                     data.count += 1
                 }
             } else if(data.typed_input != "" && !data.words[data.count].startsWith(data.typed_input)){
                 self.style.color = wrongColor
                 last_word.style.color = wrongColor
-            }else{
+            } else{
                 self.style.color = ""
                 last_word.style.color = ""
             }
@@ -143,8 +157,8 @@
             <p class="text-[1.5rem]">You typed <span x-text="total_words_day"></span> words total today!</p>
         </div>
 
-        <div id="words" style="scroll-behavior: smooth;" x-on:click="$refs.typer.focus()" x-init class="flex flex-wrap max-h-[250px] h-[250px] overflow-hidden gap-10 font-bold relative text-[#60607C]">
-            <input autocomplete="off" autocapitalize="off" autofocus aria-autocomplete="none" x-model="typed_input" x-ref="typer" id="typer" type="text" class="text-black appearance-none outline-none stroke-none absolute bg-transparent">
+        <div id="words" style="scroll-behavior: smooth;" x-on:click="$refs.typer.focus()" x-init class="flex flex-wrap max-h-[250px] h-[250px] overflow-hidden gap-10 font-bold relative text-[#60607C] tracking-widest">
+            <input autocomplete="off" autocapitalize="off" autofocus aria-autocomplete="none" x-model="typed_input" x-ref="typer" id="typer" type="text" class="text-black tracking-widest appearance-none outline-none stroke-none absolute bg-transparent">
             <div  x-show="false" x-init="$watch('typed_input', () => typed_input != '' && handleChange($refs.typer, $data))"></div>
             <template x-for="(word, index) in words">
                 <div x-data="{ shown: false }" x-intersect.half="shown = true">
@@ -156,7 +170,7 @@
         <div class="flex place-items-center justify-between md:px-56 py-20">
             <a class="text-[#60607C] font-bold opacity-50">Time: <input  class="w-[50px] outline-none text-center rounded-sm" type="text" x-model="time" x-bind:value="time"/> seconds</a>
             <div x-show="false" x-init="$watch('time', () => { !playing ? starttime = time : null  })"></div>
-            <div x-on:click="restart($data)" id="reload" class="hover:stroke-black stroke-[#60607C] cursor-pointer opacity-75 transition-colors duration-200">
+            <div x-on:click="restart($data, false)" id="reload" class="hover:stroke-black stroke-[#60607C] cursor-pointer opacity-75 transition-colors duration-200">
                 <div x-html="loadSVG('./svgs/reload.svg')"></div>
             </div>
         </div>
