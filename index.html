@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TYPI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono&family=Urbanist:wght@100;300;400;600;700&display=swap" rel="stylesheet">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@100;300;400;600;700&display=swap');
+
+        body{
+            font-family: 'Space Mono', monospace;
+        }
+        [x-cloak]{
+            display: none;
+
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="text-xl bg-[#CCCCFF]">
+    <script>
+        const batch = ["the", "and", "you", "to", "a", "it", "I", "of", "in", "that", "is", "he", "she", "for", "we", "was", "on", "are", "with", "as", "they", "at", "be", "this", "but", "not", "have", "from", "by", "or", "one", "had", "all", "an", "if", "out", "can", "your", "when", "will", "more", "up", "what", "time", "so", "about", "which", "their", "there", "then", "some", "into", "her", "would", "could", "no", "my", "like", "man", "only", "other", "than", "how", "been", "our", "do", "get", "just", "made", "him", "down", "over", "way", "find", "use", "may", "first", "water", "long", "people", "very", "after", "work", "great", "three", "see", "know", "come", "world", "through", "back", "still", "own", "those", "should", "well", "new", "because", "any", "way", "old", "year", "here", "think", "said", "yourself", "need", "many", "right", "too", "feel", "try", "some", "life", "leave", "put", "long", "call", "differ", "found", "same", "tell", "show", "around", "point", "name", "set", "group", "problem", "turn", "hand", "part", "place", "case", "week", "company", "system", "program", "question", "work", "government", "number", "night", "country", "fact", "study", "plant", "food", "sun", "four", "between", "state", "eye", "never", "last", "let", "thought", "city", "tree", "cross", "farm", "hard", "start", "might", "story", "saw", "far", "sea", "draw", "left", "late", "run", "don't", "while", "press", "close", "night", "real", "life", "few", "north", "open", "seem", "together", "next", "white", "children", "begin", "got", "walk", "example", "ease", "paper", "often", "always", "music", "those", "both", "mark", "book", "letter", "until", "mile", "river", "car", "feet", "care", "second", "group", "carry", "took", "food", "city", "eat", "room", "friend", "began", "idea", "fish", "mountain", "stop", "once", "base", "hear", "horse", "cut", "sure", "watch", "color", "face", "wood", "main", "enough", "plain", "girl", "usual", "young", "ready", "above", "ever", "red", "list", "though", "feel", "talk", "bird", "soon", "body", "dog", "family", "direct", "pose", "leave", "song", "measure", "state", "product", "black", "short", "numeral", "class", "wind", "question", "happen", "complete", "ship", "area", "half", "rock", "order", "fire", "south", "problem", "piece", "told", "knew", "pass", "since", "top", "whole", "king", "space", "heard", "best", "hour", "better", "true", "during", "hundred", "five", "remember", "step", "early", "hold", "west", "ground", "interest", "reach", "fast", "verb", "sing", "listen", "six", "table", "travel", "less", "morning", "ten", "simple", "several", "vowel", "toward", "war", "lay", "against", "pattern", "slow", "center", "love", "person", "money", "serve", "appear", "road", "map", "rain", "rule", "govern", "pull", "cold", "notice", "voice", "unit", "power", "town", "fine", "certain", "fly", "fall", "lead", "cry", "dark", "machine", "note", "wait", "plan", "figure", "star", "box", "noun", "field", "rest", "correct", "able", "pound", "done", "beauty", "drive", "stood", "contain", "front", "teach", "week", "final", "gave", "green", "quick", "develop", "ocean", "warm", "free", "minute"];
+        const wrongColor = "darkred"
+
+        const generateWords = (amount) => {
+            let text = []
+            for(let i = 0; i <= amount; i++){
+                text.push(batch[Math.floor(Math.random() * batch.length)])
+            }
+            return text
+        }
+        const calculateWPM = (wordsTyped, timeInSeconds) => {
+            return (wordsTyped / timeInSeconds) * 60;
+        }
+
+        let playing = false
+        let timerValue = 0;
+        let timerInterval;
+
+        const updateTimer = (data) => {
+            data.time -= 1
+            timerValue++;
+            if(data.time === 0){
+                data.gameover = true
+                stopTimer()
+            }
+        }
+
+        const startTimer = (data) => {
+            if(data.count == 0){
+                timerInterval = setInterval(() => updateTimer(data), 1000);
+            }
+        }
+
+        const stopTimer = () => {
+            timerValue = 0
+            clearInterval(timerInterval);
+        }
+
+        const restart = (data) => {
+            data.gameover = false
+            playing = false
+            data.words = generateWords(500)
+            data.last_count = calculateWPM(data.count - data.wrong, data.starttime)
+            data.best_count = Math.max(data.best_count, data.last_count)
+            data.count = 0
+            data.time = data.starttime
+            document.getElementById("typer").value = ""
+            document.getElementById("typer").style.top = ""
+            document.getElementById("typer").style.left = 0
+            document.getElementById("typer").style.color = ""
+            document.querySelectorAll("#word").forEach(e => {e.style.color = ""})
+            stopTimer();
+        }
+
+        const handleChange = (self, data) =>{
+            if(!playing && !data.gameover){
+                startTimer(data)
+                playing = true 
+            }
+            let word = document.querySelectorAll("#word")[data.count+1]
+            let last_word = document.querySelectorAll("#word")[data.count]
+            if(data.typed_input != "" && data.typed_input.endsWith(" ")){
+                if (data.typed_input.slice(0, -1) === data.words[data.count]){
+                    self.style.top = word.offsetTop + "px"
+                    self.style.left = word.offsetLeft + "px"
+                    self.value = ""
+                    last_word.style.color = "black"
+
+                    data.count += 1
+                    data.total_words_day += 1
+                }else{
+                    self.style.top = word.offsetTop + "px"
+                    self.style.left = word.offsetLeft + "px"
+                    self.value = ""
+                    last_word.style.color = wrongColor
+                    data.wrong += 1
+                    data.count += 1
+                }
+            } else if(data.typed_input != "" && !data.words[data.count].startsWith(data.typed_input)){
+                self.style.color = wrongColor
+                last_word.style.color = wrongColor
+            }else{
+                self.style.color = ""
+                last_word.style.color = ""
+            }
+        }
+
+    </script>
+    <div x-data="{gameover: false, starttime: 60, time: 60, words: generateWords(500), best_count: $persist(0), last_count: $persist(0),  count: 0, wrong: 0, typed_input: '', total_words_day: $persist(0)}">
+        <div class="px-10 md:px-36"
+        x-show="!gameover"
+        x-cloak>
+
+        <div x-transition id="scores" class="py-20 text-2xl leading-[3rem] text-[#60607C]">
+            <div>last score: <span x-text="last_count"></span> wpm</div>
+            <div>best score: <span x-text="best_count"></span> wpm</div>
+        </div>
+        <div class="flex flex-col gap-2 pb-20">
+            <div class="flex gap-10 md:gap-0 flex-col md:flex-row justify-between md:place-items-center">
+                <h1 class="text-3xl font-bold order-last md:order-first">Welcome, Person!</h1>
+                <div id="options" class="flex gap-5">
+                    <div id="music">
+                        <svg width="45" height="45" viewBox="0 0 63 63" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M49.7068 52.5341L45.6111 49.2575C54.7403 39.2814 54.7403 24.031 45.611 14.0549L49.7066 10.7785C60.3639 22.6786 60.3638 40.634 49.7068 52.5341ZM39.3233 19.0852L35.2228 22.3655C40.1196 27.6033 40.1194 35.7092 35.223 40.947L39.3234 44.2273C45.747 37.0634 45.747 26.249 39.3233 19.0852ZM28.8442 10.5L15.204 21.2333H5.25V42.2333H15.2194L28.8442 52.7487V10.5Z" fill="#1C274C"/>
+                        </svg>
+                    </div>
+                    <div id="settings">
+                        <svg width="45" height="45" viewBox="0 0 63 63" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M37.4818 5.64963C36.5098 5.25 35.2774 5.25 32.8125 5.25C30.3476 5.25 29.1152 5.25 28.1431 5.64963C26.8469 6.18248 25.8171 7.20452 25.2802 8.4909C25.0351 9.07814 24.9392 9.76106 24.9017 10.7572C24.8465 12.2212 24.09 13.5762 22.8117 14.3087C21.5333 15.0411 19.9727 15.0138 18.6677 14.3292C17.7796 13.8634 17.1357 13.6044 16.5007 13.5214C15.1097 13.3397 13.703 13.7138 12.5899 14.5614C11.7551 15.1971 11.1389 16.2564 9.90648 18.3748C8.67407 20.4933 8.05788 21.5525 7.92054 22.5879C7.73739 23.9684 8.11434 25.3645 8.96844 26.4692C9.35828 26.9735 9.90614 27.3971 10.7565 27.9274C12.0065 28.707 12.8108 30.035 12.8108 31.5C12.8107 32.965 12.0064 34.2927 10.7565 35.0721C9.90601 35.6026 9.35804 36.0266 8.96818 36.5308C8.11408 37.6354 7.73716 39.0314 7.92028 40.4119C8.05762 41.4472 8.67383 42.5066 9.90622 44.625C11.1386 46.7434 11.7548 47.8028 12.5897 48.4383C13.7027 49.286 15.1095 49.66 16.5005 49.4784C17.1354 49.3954 17.7793 49.1363 18.6672 48.6707C19.9724 47.9861 21.5331 47.9588 22.8116 48.6911C24.09 49.4238 24.8465 50.7788 24.9017 52.243C24.9392 53.2389 25.0351 53.922 25.2802 54.5092C25.8171 55.7954 26.8469 56.8176 28.1431 57.3505C29.1152 57.75 30.3476 57.75 32.8125 57.75C35.2774 57.75 36.5098 57.75 37.4818 57.3505C38.7781 56.8176 39.8079 55.7954 40.3447 54.5092C40.5898 53.922 40.6859 53.2389 40.7235 52.2428C40.7786 50.7788 41.5348 49.4238 42.8132 48.6911C44.0916 47.9585 45.6524 47.9861 46.9576 48.6707C47.8456 49.1363 48.4893 49.3952 49.1243 49.4781C50.5152 49.66 51.922 49.286 53.035 48.4383C53.87 47.8026 54.4861 46.7434 55.7185 44.6247C56.951 42.5064 57.567 41.4472 57.7046 40.4119C57.8876 39.0314 57.5106 37.6352 56.6567 36.5306C56.2666 36.0263 55.7188 35.6024 54.8683 35.0721C53.6185 34.2927 52.8142 32.9648 52.8142 31.4997C52.8142 30.0347 53.6185 28.7073 54.8683 27.9279C55.719 27.3974 56.2669 26.9737 56.6569 26.4692C57.5109 25.3647 57.8878 23.9685 57.7048 22.588C57.5673 21.5527 56.9512 20.4935 55.7188 18.375C54.4863 16.2565 53.8702 15.1973 53.0352 14.5616C51.9222 13.7139 50.5155 13.3399 49.1245 13.5216C48.4895 13.6046 47.8456 13.8636 46.9578 14.3294C45.6527 15.0139 44.0919 15.0413 42.8135 14.3088C41.5351 13.5763 40.7786 12.2211 40.7232 10.7571C40.6857 9.76101 40.5898 9.07812 40.3447 8.4909C39.8079 7.20452 38.7781 6.18248 37.4818 5.64963ZM32.8125 39.375C37.1949 39.375 40.7473 35.8494 40.7473 31.5C40.7473 27.1506 37.1949 23.625 32.8125 23.625C28.4301 23.625 24.8775 27.1506 24.8775 31.5C24.8775 35.8494 28.4301 39.375 32.8125 39.375Z" fill="#1C274C"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <p class="text-[1.5rem]">You typed <span x-text="total_words_day"></span> words total today!</p>
+        </div>
+
+        <div id="words" style="scroll-behavior: smooth;" x-on:click="$refs.typer.focus()" x-init class="flex flex-wrap max-h-[250px] h-[250px] overflow-hidden gap-10 font-bold relative text-[#60607C]">
+            <input autocomplete="off" autocapitalize="off" autofocus aria-autocomplete="none" x-model="typed_input" x-ref="typer" id="typer" type="text" class="text-black appearance-none outline-none stroke-none absolute bg-transparent">
+            <div  x-show="false" x-init="$watch('typed_input', () => typed_input != '' && handleChange($refs.typer, $data))"></div>
+            <template x-for="(word, index) in words">
+                <div x-data="{ shown: false }" x-intersect.half="shown = true">
+                    <div id="word" class="select-none" x-cloak x-show="shown" x-transition x-text="word" x-bind:data-index="index"></div>
+                </div>
+            </template>
+        </div>
+
+        <div class="flex place-items-center justify-between md:px-56 py-20">
+            <a class="text-[#60607C] font-bold opacity-50">Time: <input  class="w-[50px] outline-none text-center rounded-sm" type="text" x-model="time" x-bind:value="time"/> seconds</a>
+            <div x-show="false" x-init="$watch('time', () => { !playing ? starttime = time : null  })"></div>
+            <div x-on:click="restart($data)" id="reload" class="hover:stroke-black stroke-[#60607C] cursor-pointer opacity-75 transition-colors duration-200">
+                <svg width="41" height="46" viewBox="0 0 41 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M26.6662 14.6667H38.3328V3M37.6545 34.1661C35.4801 37.5142 32.2897 40.0771 28.5517 41.4783C24.8137 42.8797 20.7246 43.0456 16.8851 41.952C13.0457 40.8583 9.65876 38.563 7.22022 35.4023C4.78168 32.2416 3.42102 28.382 3.33741 24.3908C3.25381 20.3994 4.45104 16.4867 6.75509 13.2266C9.05912 9.96642 12.3478 7.53133 16.138 6.27784C19.9282 5.02433 24.0209 5.01831 27.8144 6.26188C31.6079 7.50546 34.9028 9.93222 37.2154 13.1863" stroke-width="5.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+        <footer class="flex gap-5 place-items-center text-[#60607C] opacity-75 justify-center">
+            <svg width="59" height="41" viewBox="0 0 59 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.5" d="M41 0.375H18C9.86826 0.375 5.80241 0.375001 3.27621 2.90121C0.75 5.42741 0.75 9.49327 0.75 17.625V23.375C0.75 31.5067 0.75 35.5725 3.27621 38.0987C5.80241 40.625 9.86826 40.625 18 40.625H41C49.1316 40.625 53.1975 40.625 55.7237 38.0987C58.25 35.5725 58.25 31.5067 58.25 23.375V17.625C58.25 9.49327 58.25 5.42741 55.7237 2.90121C53.1975 0.375001 49.1316 0.375 41 0.375Z" fill="#9393B8"/>
+                <path d="M12.25 14.75C13.8378 14.75 15.125 13.4628 15.125 11.875C15.125 10.2872 13.8378 9 12.25 9C10.6622 9 9.375 10.2872 9.375 11.875C9.375 13.4628 10.6622 14.75 12.25 14.75Z" fill="#9393B8"/>
+                <path d="M12.25 23.375C13.8378 23.375 15.125 22.0879 15.125 20.5C15.125 18.9121 13.8378 17.625 12.25 17.625C10.6622 17.625 9.375 18.9121 9.375 20.5C9.375 22.0879 10.6622 23.375 12.25 23.375Z" fill="#9393B8"/>
+                <path d="M20.875 23.375C22.4628 23.375 23.75 22.0879 23.75 20.5C23.75 18.9121 22.4628 17.625 20.875 17.625C19.2872 17.625 18 18.9121 18 20.5C18 22.0879 19.2872 23.375 20.875 23.375Z" fill="#9393B8"/>
+                <path d="M20.875 14.75C22.4628 14.75 23.75 13.4628 23.75 11.875C23.75 10.2872 22.4628 9 20.875 9C19.2872 9 18 10.2872 18 11.875C18 13.4628 19.2872 14.75 20.875 14.75Z" fill="#9393B8"/>
+                <path d="M29.5 14.75C31.0879 14.75 32.375 13.4628 32.375 11.875C32.375 10.2872 31.0879 9 29.5 9C27.9121 9 26.625 10.2872 26.625 11.875C26.625 13.4628 27.9121 14.75 29.5 14.75Z" fill="#9393B8"/>
+                <path d="M29.5 23.375C31.0879 23.375 32.375 22.0879 32.375 20.5C32.375 18.9121 31.0879 17.625 29.5 17.625C27.9121 17.625 26.625 18.9121 26.625 20.5C26.625 22.0879 27.9121 23.375 29.5 23.375Z" fill="#9393B8"/>
+                <path d="M38.125 14.75C39.7129 14.75 41 13.4628 41 11.875C41 10.2872 39.7129 9 38.125 9C36.5371 9 35.25 10.2872 35.25 11.875C35.25 13.4628 36.5371 14.75 38.125 14.75Z" fill="#9393B8"/>
+                <path d="M38.125 23.375C39.7129 23.375 41 22.0879 41 20.5C41 18.9121 39.7129 17.625 38.125 17.625C36.5371 17.625 35.25 18.9121 35.25 20.5C35.25 22.0879 36.5371 23.375 38.125 23.375Z" fill="#9393B8"/>
+                <path d="M46.75 14.75C48.3379 14.75 49.625 13.4628 49.625 11.875C49.625 10.2872 48.3379 9 46.75 9C45.1621 9 43.875 10.2872 43.875 11.875C43.875 13.4628 45.1621 14.75 46.75 14.75Z" fill="#9393B8"/>
+                <path d="M46.75 23.375C48.3379 23.375 49.625 22.0879 49.625 20.5C49.625 18.9121 48.3379 17.625 46.75 17.625C45.1621 17.625 43.875 18.9121 43.875 20.5C43.875 22.0879 45.1621 23.375 46.75 23.375Z" fill="#9393B8"/>
+                <path d="M46.0312 32C46.0312 33.1908 45.0658 34.1562 43.875 34.1562H15.125C13.9341 34.1562 12.9688 33.1908 12.9688 32C12.9688 30.8092 13.9341 29.8438 15.125 29.8438H43.875C45.0658 29.8438 46.0312 30.8092 46.0312 32Z" fill="#9393B8"/>
+            </svg>
+            Copyright <span class="text-4xl pt-3">&copy;</span> TYPI <span x-text="(new Date()).getFullYear()"></span>
+        </footer>
+    </div>
+    <div x-data x-show="gameover" x-cloak>
+        <div class="flex flex-col place-items-center justify-center h-screen gap-10 text-center" x-cloak>
+            <h1 class="text-2xl font-bold px-5 md:px-0">Congrats! You typed <span x-text="calculateWPM(count - wrong, starttime)"></span> wpm!</h1>
+            <div x-on:click="restart($data)" id="reload" class="hover:stroke-black stroke-[#60607C] cursor-pointer opacity-75 transition-colors duration-200">
+                <svg width="41" height="46" viewBox="0 0 41 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M26.6662 14.6667H38.3328V3M37.6545 34.1661C35.4801 37.5142 32.2897 40.0771 28.5517 41.4783C24.8137 42.8797 20.7246 43.0456 16.8851 41.952C13.0457 40.8583 9.65876 38.563 7.22022 35.4023C4.78168 32.2416 3.42102 28.382 3.33741 24.3908C3.25381 20.3994 4.45104 16.4867 6.75509 13.2266C9.05912 9.96642 12.3478 7.53133 16.138 6.27784C19.9282 5.02433 24.0209 5.01831 27.8144 6.26188C31.6079 7.50546 34.9028 9.93222 37.2154 13.1863" stroke-width="5.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+</html>
