@@ -22,8 +22,6 @@ To get started with the Type Speed Test Game, follow these simple steps:
 
 - Engaging typing test to measure your typing speed and accuracy.
 
-- Real-time calculation of your typing speed and accuracy.
-
 - Simple and intuitive gameplay that anyone can enjoy.
 
 - Customizable time limit for the typing test.
